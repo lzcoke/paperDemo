@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lzcoke.mapper.CategoryMapper">
+    <select id="CategoryPage" resultType="CategoryFirst">
+        select *
+        from paper.c_first
+        where category_status = 0
+        ORDER BY category_position DESC, category_id DESC
+    </select>
+
+    <select id="SecondPage" resultType="CategorySecond">
+        select *
+        from paper.c_second
+        where second_status = 0
+        <if test="categoryId != 0">
+            and category_id = #{categoryId}
+        </if>
+        ORDER BY second_position DESC, second_id DESC
+    </select>
+
+    <select id="ThreePage" resultType="CategoryThree">
+        select *
+        from paper.c_three
+        where three_status = 0
+        <if test="categoryId != 0">
+            and category_id = #{categoryId}
+        </if>
+        <if test="secondId != 0">
+            and second_id = #{secondId}
+        </if>
+        ORDER BY three_position DESC , three_id DESC
+    </select>
+
+    <select id="FourPage" resultType="CategoryFour">
+        select *
+        from paper.c_four
+        where four_status = 0
+        <if test="categoryId != 0">
+            and category_id = #{categoryId}
+        </if>
+        <if test="secondId != 0">
+            and second_id = #{secondId}
+        </if>
+        <if test="threeId != 0">
+            and three_id = #{threeId}
+        </if>
+        ORDER BY four_position DESC, four_id DESC
+    </select>
+
+    <select id="FivePage" resultType="CategoryFive">
+        select *
+        from paper.c_five
+        where five_status = 0
+        <if test="categoryId != 0">
+            and category_id = #{categoryId}
+        </if>
+        <if test="secondId != 0">
+            and second_id = #{secondId}
+        </if>
+        <if test="threeId != 0">
+            and three_id = #{threeId}
+        </if>
+        <if test="fourId != 0">
+            and four_id = #{fourId}
+        </if>
+        ORDER BY five_position DESC , five_id DESC
+    </select>
+
+</mapper>

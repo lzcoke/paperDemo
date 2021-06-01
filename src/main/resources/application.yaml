@@ -1,0 +1,9 @@
+spring:
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
+  redis:
+    host: 47.110.90.236
+    port: 6379

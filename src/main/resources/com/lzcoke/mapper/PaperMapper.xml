@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lzcoke.mapper.PaperMapper">
+    <select id="paperPage" resultMap="paperPageMap">
+        select pp.*,(
+        SELECT uc.collect_id
+        from paper.u_collect uc
+        WHERE pp.paper_id = uc.paper_id
+        <if test="userId != 0">
+            and uc.user_id = #{userId}
+        </if>
+        ) AS collect_id
+        from paper.paper pp
+        where paper_status = 0
+        <if test="categoryId != 0">
+            and pp.category_id = #{categoryId}
+        </if>
+        <if test="secondId != 0">
+            and pp.second_id = #{secondId}
+        </if>
+        <if test="threeId != 0">
+            and pp.three_id = #{threeId}
+        </if>
+        <if test="fourId != 0">
+            and pp.four_id = #{fourId}
+        </if>
+        <if test="fiveId != 0">
+            and pp.five_id = #{fiveId}
+        </if>
+        ORDER BY paper_position DESC, paper_create_date DESC limit #{startIndex}, #{pageSize}
+    </select>
+
+    <!--结构嵌套查询 1对多关系 -->
+    <resultMap id="paperPageMap" type="PaperPage">
+        <collection property="paper" ofType="Paper">
+            <result property="paper_id" column="paper_id"/>
+            <result property="paper_name" column="paper_name"/>
+            <result property="paper_url" column="paper_url"/>
+            <result property="paper_create_date" column="paper_create_date"/>
+            <result property="paper_update_date" column="paper_update_date"/>
+        </collection>
+        <collection property="collect" ofType="Collect">
+            <result property="collect_id" column="collect_id"/>
+        </collection>
+    </resultMap>
+
+    <insert id="paperCollect">
+        insert into paper.u_collect (user_id, paper_id, collect_create_date)
+        values (#{userId}, #{paperId}, now())
+    </insert>
+
+    <delete id="paperNotCollect">
+        delete
+        from paper.u_collect
+        where user_id = #{userId}
+          and paper_id = #{paperId}
+    </delete>
+
+    <select id="paperCollectPage" resultMap="pageCollectPageMap">
+        select uc.collect_id,
+               uc.user_id,
+               uc.paper_id,
+               uc.collect_create_date,
+               pp.paper_name,
+               pp.paper_url,
+               pp.paper_update_date,
+               pp.paper_create_date
+        from paper.u_collect uc
+                 join paper.paper pp on uc.paper_id = pp.paper_id
+        where uc.user_id = #{userId}
+        order by uc.collect_id desc limit #{startIndex}
+               , #{pageSize}
+    </select>
+    <!--结构嵌套查询 1对多关系 -->
+    <resultMap id="pageCollectPageMap" type="PaperCollect">
+        <result property="collect_id" column="collect_id"/>
+        <result property="user_id" column="user_id"/>
+        <result property="paper_id" column="paper_id"/>
+        <result property="collect_create_date" column="collect_create_date"/>
+        <collection property="paper" ofType="Paper">
+            <result property="paper_id" column="paper_id"/>
+            <result property="paper_name" column="paper_name"/>
+            <result property="paper_url" column="paper_url"/>
+            <result property="paper_create_date" column="paper_create_date"/>
+            <result property="paper_update_date" column="paper_update_date"/>
+        </collection>
+    </resultMap>
+
+    <select id="paperCollectJunit" resultType="PaperCollect">
+        select *
+        from paper.u_collect
+        where paper_id = #{paperId}
+          and user_id = #{userId}
+    </select>
+
+    <insert id="paperView">
+        insert into paper.u_view (user_id, paper_id, view_create_date)
+        values (#{userId}, #{paperId}, now())
+    </insert>
+
+    <select id="paperViewPage" resultMap="paperViewMap">
+        select *
+        from u_view uv
+                 join paper p on p.paper_id = uv.paper_id
+        where uv.user_id
+        order by uv.view_create_date desc limit #{startIndex}
+               , #{pageSize}
+    </select>
+
+    <resultMap id="paperViewMap" type="PaperViewPojo">
+        <collection property="paper" ofType="Paper">
+            <result property="paper_id" column="paper_id"/>
+            <result property="paper_name" column="paper_name"/>
+            <result property="paper_url" column="paper_url"/>
+            <result property="paper_create_date" column="paper_create_date"/>
+            <result property="paper_update_date" column="paper_update_date"/>
+        </collection>
+        <collection property="paperView" ofType="PaperView">
+            <result property="view_id" column="view_id"/>
+            <result property="view_create_date" column="view_create_date"/>
+        </collection>
+    </resultMap>
+</mapper>
